@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MKT205 Tutorial 13</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* VOICE: a friendly class handout that also works as a projector deck
+   IDEA: a stats lab worksheet, with each question on its own card and a live scatter plot beside it
+   PICTURE: real scatter plots students can play with (guess r, r slider, regression line)
+   COLOUR and TYPE: deep green ground, lime highlights, coral for watch-outs; Inter Tight + Inter
+   LAYOUT: hero with the warm-up game, sticky question chips, question cards (text | demo), submit card */
+:root{color-scheme:light dark;
+ --bg:light-dark(#ffffff,#0e1613);--ink:light-dark(#13201b,#e7efe9);--muted:light-dark(#53625c,#a2b3ac);
+ --card:light-dark(#f2f7f0,#15211c);--line:light-dark(#d6e2d9,#2a3a33);
+ --green:#00463c;--lime:#e6f5c8;--coral:#ff6f59;--dot:light-dark(#00463c,#bfe78f);--fit:#ff6f59}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:"Inter Tight",Inter,sans-serif;line-height:1.08;text-wrap:balance;margin:0}
+.band{padding:clamp(28px,4vw,64px) max(5vw,16px)}
+.fig{position:relative;height:300px}.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+.scroll{overflow-x:auto}
+button,.btn{font:600 15px/1 Inter,sans-serif;min-height:44px;padding:0 18px;border-radius:10px;border:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;background:var(--green);color:#fff}
+button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid var(--coral);outline-offset:2px}
+.ghost{background:transparent;color:inherit;box-shadow:inset 0 0 0 2px currentColor}
+/* hero */
+.hero{background:var(--green);color:#fff}
+.hero-in{max-width:1240px;margin:auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(24px,4vw,56px);align-items:center}
+.kicker{color:var(--lime);font-weight:600;margin:0 0 10px}
+h1{font-size:clamp(34px,5vw,52px)}
+.intro p.lead{font-size:17px;max-width:34em;opacity:.92}
+.hero .btn{background:var(--lime);color:var(--green)}.hero .ghost{background:transparent;color:#fff}
+.qr{display:flex;gap:14px;align-items:center;margin-top:22px}.qr svg{width:clamp(110px,12vw,170px);height:auto;flex:none;border-radius:10px}.qr p{margin:0;font-size:15px}
+.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.game{background:rgba(255,255,255,.07);border-radius:18px;padding:16px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
+.gtop,.gbot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.gtop span{color:var(--lime)}
+.game .fig{height:260px;margin:8px 0}
+.game .ax{stroke:rgba(255,255,255,.5)}.game .dot{fill:var(--lime)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:12px}
+.opts button{background:rgba(255,255,255,.1);color:#fff;font-weight:500;padding:8px 10px;line-height:1.2}
+.opts .ok{background:var(--lime);color:var(--green);font-weight:700}.opts .no{background:var(--coral);color:#fff}
+#gr{font:600 17px/1.3 Inter,sans-serif;color:var(--lime)}
+/* chips */
+#chips{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);display:flex;gap:8px;padding:10px max(5vw,16px)}
+#chips a{flex:none;color:var(--ink);text-decoration:none;font-weight:600;font-size:14px;padding:10px 14px;border-radius:99px;background:var(--card)}
+/* question cards */
+.q+.q{border-top:1px solid var(--line)}
+.qwrap{max-width:1240px;margin:auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(20px,4vw,56px);align-items:start}
+.qn{color:var(--muted);font-weight:600;margin:0 0 8px}
+h2{font-size:clamp(24px,3vw,34px);margin-bottom:16px}
+details.tip{background:var(--card);border-radius:14px;padding:4px 18px;margin:14px 0}
+details.tip summary{cursor:pointer;font-weight:600;min-height:44px;display:flex;align-items:center;color:var(--dot)}
+details.tip ul{padding-left:1.2em;margin:4px 0 12px}details.tip li{margin:6px 0}
+.ex,.warn{margin:10px 0 14px;padding-left:12px;border-left:3px solid var(--dot)}
+.warn{border-color:var(--coral)}
+.terms{display:flex;flex-wrap:wrap;gap:6px}
+.terms span{font-size:13px;padding:5px 10px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+.demo{background:var(--card);border-radius:18px;padding:16px}
+.demo h3{font-size:18px;margin-bottom:6px}.demo p{margin:4px 0;color:var(--muted);font-size:14px}
+.ax{stroke:var(--muted);stroke-width:1.2}.dot{fill:var(--dot);opacity:.85}.fit{stroke:var(--fit);stroke-width:3}
+.lab{fill:var(--muted);font:12px Inter,sans-serif}
+.minis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.minis .fig{height:130px}.minis b{display:block;font-size:14px;text-align:center}
+.ladder{display:grid;gap:8px;margin-top:8px}
+.ladder button{justify-content:space-between;gap:12px;text-align:left;line-height:1.35;padding:10px 14px;background:var(--bg);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line);font-weight:500}
+.ladder em{font-style:normal;font-weight:700;color:var(--dot);flex:none;visibility:hidden}
+.ladder .open em{visibility:visible}
+.scale{position:relative;height:16px;border-radius:99px;background:linear-gradient(90deg,var(--coral),var(--line) 50%,var(--dot));margin:46px 6px 30px}
+.mk{position:absolute;top:-38px;transform:translateX(-50%);font-weight:700;font-size:14px;white-space:nowrap;text-align:center}
+.mk::after{content:"";display:block;width:2px;height:22px;background:var(--ink);margin:4px auto 0}
+.ends{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+.slider{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:8px}
+input[type=range]{flex:1;min-width:160px;height:44px;accent-color:var(--coral)}
+.read{font:700 22px "Inter Tight",sans-serif}
+.formula{font:500 15px/1.6 "Inter",sans-serif;background:var(--bg);border-radius:10px;padding:10px 12px;overflow-x:auto;white-space:nowrap}
+.meter{display:grid;gap:8px;margin-top:10px}
+.meter div{display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:10px;align-items:center;font-size:14px}
+.meter i{display:block;height:26px;border-radius:6px;background:var(--dot);color:var(--bg);font-style:normal;font-weight:600;padding:3px 8px;white-space:nowrap}
+.meter.hide{filter:blur(7px);pointer-events:none}
+.pred{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.pred input{font:16px Inter,sans-serif;width:6em;min-height:44px;padding:0 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+/* submit */
+.submit{background:var(--green);color:#fff}
+.submit .qwrap{align-items:center}
+.submit ol{font-size:17px;padding-left:1.3em}.submit li{margin:10px 0}
+.deadline{background:var(--lime);color:var(--green);border-radius:18px;padding:24px}
+.deadline b{display:block;font:700 clamp(28px,4vw,40px)/1.1 "Inter Tight",sans-serif}
+footer{color:var(--muted);font-size:13px;text-align:center;padding:20px}
+/* presenter mode */
+#pnav{display:none}
+body.present{font-size:clamp(18px,1.45vw,24px)}
+body.present #chips,body.present footer,body.present .slide{display:none}
+body.present .slide.on{display:flex;align-items:center;min-height:calc(100vh - 64px)}
+body.present .slide.on>*{width:100%}
+body.present h2{font-size:clamp(30px,3.2vw,48px)}
+body.present .fig{height:min(46vh,440px)}body.present .minis .fig{height:min(19vh,180px)}
+body.present .game .fig{height:min(48vh,440px)}
+body.present #pnav{display:flex;position:fixed;inset:auto 0 0 0;height:64px;gap:8px;align-items:center;padding:0 16px;background:var(--bg);border-top:1px solid var(--line);z-index:9}
+#pnav .sp{flex:1}#pos{font-weight:600;color:var(--muted);padding:0 6px}
+#tm{min-width:5.5ch;font:700 20px "Inter Tight",sans-serif}#tm.done{background:var(--coral)}
+@media(max-width:860px){.hero-in,.qwrap{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){#present,.qr{display:none}.fig{height:250px}}
+@media(prefers-reduced-motion:no-preference){.dot{transition:cx .35s,cy .35s}}
+</style>
+</head>
+<body>
+
+<header class="band hero slide" id="warm">
+ <div class="hero-in">
+  <div class="intro">
+   <p class="kicker">MKT205 Marketing Research · Tutorial 13</p>
+   <h1>Correlation &amp; regression</h1>
+   <p class="lead">Answer all seven questions <b>on paper</b>, in your own words. Open the tips to plan each answer, and back your points with your textbook or other materials. When you finish, photograph your pages and upload them to Moodle.</p>
+   <div class="row"><button id="present">Present on projector</button><a class="btn ghost" href="#q1">Go to the questions</a></div>
+   <div class="qr"><svg version="1.1" viewBox="0 0 33 33" xmlns="http://www.w3.org/2000/svg"><rect width="33" height="33" fill="#fff"/><path fill="#00463c" d="M2,2H3V3H2zM3,2H4V3H3zM4,2H5V3H4zM5,2H6V3H5zM6,2H7V3H6zM7,2H8V3H7zM8,2H9V3H8zM13,2H14V3H13zM20,2H21V3H20zM21,2H22V3H21zM24,2H25V3H24zM25,2H26V3H25zM26,2H27V3H26zM27,2H28V3H27zM28,2H29V3H28zM29,2H30V3H29zM30,2H31V3H30zM2,3H3V4H2zM8,3H9V4H8zM12,3H13V4H12zM13,3H14V4H13zM14,3H15V4H14zM16,3H17V4H16zM17,3H18V4H17zM19,3H20V4H19zM20,3H21V4H20zM22,3H23V4H22zM24,3H25V4H24zM30,3H31V4H30zM2,4H3V5H2zM4,4H5V5H4zM5,4H6V5H5zM6,4H7V5H6zM8,4H9V5H8zM12,4H13V5H12zM17,4H18V5H17zM18,4H19V5H18zM19,4H20V5H19zM20,4H21V5H20zM24,4H25V5H24zM26,4H27V5H26zM27,4H28V5H27zM28,4H29V5H28zM30,4H31V5H30zM2,5H3V6H2zM4,5H5V6H4zM5,5H6V6H5zM6,5H7V6H6zM8,5H9V6H8zM14,5H15V6H14zM21,5H22V6H21zM24,5H25V6H24zM26,5H27V6H26zM27,5H28V6H27zM28,5H29V6H28zM30,5H31V6H30zM2,6H3V7H2zM4,6H5V7H4zM5,6H6V7H5zM6,6H7V7H6zM8,6H9V7H8zM11,6H12V7H11zM12,6H13V7H12zM14,6H15V7H14zM15,6H16V7H15zM18,6H19V7H18zM19,6H20V7H19zM20,6H21V7H20zM24,6H25V7H24zM26,6H27V7H26zM27,6H28V7H27zM28,6H29V7H28zM30,6H31V7H30zM2,7H3V8H2zM8,7H9V8H8zM10,7H11V8H10zM11,7H12V8H11zM16,7H17V8H16zM17,7H18V8H17zM18,7H19V8H18zM19,7H20V8H19zM20,7H21V8H20zM21,7H22V8H21zM24,7H25V8H24zM30,7H31V8H30zM2,8H3V9H2zM3,8H4V9H3zM4,8H5V9H4zM5,8H6V9H5zM6,8H7V9H6zM7,8H8V9H7zM8,8H9V9H8zM10,8H11V9H10zM12,8H13V9H12zM14,8H15V9H14zM16,8H17V9H16zM18,8H19V9H18zM20,8H21V9H20zM22,8H23V9H22zM24,8H25V9H24zM25,8H26V9H25zM26,8H27V9H26zM27,8H28V9H27zM28,8H29V9H28zM29,8H30V9H29zM30,8H31V9H30zM12,9H13V10H12zM14,9H15V10H14zM17,9H18V10H17zM19,9H20V10H19zM22,9H23V10H22zM2,10H3V11H2zM5,10H6V11H5zM7,10H8V11H7zM8,10H9V11H8zM10,10H11V11H10zM13,10H14V11H13zM15,10H16V11H15zM17,10H18V11H17zM18,10H19V11H18zM22,10H23V11H22zM23,10H24V11H23zM25,10H26V11H25zM3,11H4V12H3zM4,11H5V12H4zM5,11H6V12H5zM6,11H7V12H6zM7,11H8V12H7zM9,11H10V12H9zM10,11H11V12H10zM11,11H12V12H11zM13,11H14V12H13zM15,11H16V12H15zM16,11H17V12H16zM17,11H18V12H17zM18,11H19V12H18zM19,11H20V12H19zM22,11H23V12H22zM23,11H24V12H23zM24,11H25V12H24zM27,11H28V12H27zM30,11H31V12H30zM2,12H3V13H2zM3,12H4V13H3zM4,12H5V13H4zM7,12H8V13H7zM8,12H9V13H8zM9,12H10V13H9zM12,12H13V13H12zM15,12H16V13H15zM16,12H17V13H16zM18,12H19V13H18zM19,12H20V13H19zM21,12H22V13H21zM22,12H23V13H22zM23,12H24V13H23zM24,12H25V13H24zM25,12H26V13H25zM26,12H27V13H26zM27,12H28V13H27zM28,12H29V13H28zM29,12H30V13H29zM2,13H3V14H2zM3,13H4V14H3zM9,13H10V14H9zM12,13H13V14H12zM14,13H15V14H14zM15,13H16V14H15zM16,13H17V14H16zM18,13H19V14H18zM20,13H21V14H20zM23,13H24V14H23zM25,13H26V14H25zM28,13H29V14H28zM29,13H30V14H29zM2,14H3V15H2zM3,14H4V15H3zM4,14H5V15H4zM8,14H9V15H8zM11,14H12V15H11zM12,14H13V15H12zM13,14H14V15H13zM14,14H15V15H14zM15,14H16V15H15zM16,14H17V15H16zM17,14H18V15H17zM18,14H19V15H18zM19,14H20V15H19zM22,14H23V15H22zM23,14H24V15H23zM24,14H25V15H24zM25,14H26V15H25zM27,14H28V15H27zM29,14H30V15H29zM30,14H31V15H30zM5,15H6V16H5zM6,15H7V16H6zM7,15H8V16H7zM11,15H12V16H11zM12,15H13V16H12zM16,15H17V16H16zM18,15H19V16H18zM21,15H22V16H21zM22,15H23V16H22zM23,15H24V16H23zM3,16H4V17H3zM5,16H6V17H5zM7,16H8V17H7zM8,16H9V17H8zM13,16H14V17H13zM16,16H17V17H16zM19,16H20V17H19zM20,16H21V17H20zM23,16H24V17H23zM25,16H26V17H25zM26,16H27V17H26zM27,16H28V17H27zM28,16H29V17H28zM29,16H30V17H29zM30,16H31V17H30zM2,17H3V18H2zM3,17H4V18H3zM6,17H7V18H6zM7,17H8V18H7zM9,17H10V18H9zM10,17H11V18H10zM13,17H14V18H13zM14,17H15V18H14zM15,17H16V18H15zM16,17H17V18H16zM18,17H19V18H18zM19,17H20V18H19zM20,17H21V18H20zM23,17H24V18H23zM27,17H28V18H27zM29,17H30V18H29zM2,18H3V19H2zM3,18H4V19H3zM4,18H5V19H4zM7,18H8V19H7zM8,18H9V19H8zM10,18H11V19H10zM14,18H15V19H14zM16,18H17V19H16zM17,18H18V19H17zM19,18H20V19H19zM23,18H24V19H23zM29,18H30V19H29zM6,19H7V20H6zM7,19H8V20H7zM10,19H11V20H10zM13,19H14V20H13zM16,19H17V20H16zM18,19H19V20H18zM20,19H21V20H20zM23,19H24V20H23zM24,19H25V20H24zM25,19H26V20H25zM27,19H28V20H27zM30,19H31V20H30zM2,20H3V21H2zM5,20H6V21H5zM7,20H8V21H7zM8,20H9V21H8zM9,20H10V21H9zM12,20H13V21H12zM13,20H14V21H13zM15,20H16V21H15zM24,20H25V21H24zM29,20H30V21H29zM30,20H31V21H30zM11,21H12V22H11zM16,21H17V22H16zM17,21H18V22H17zM18,21H19V22H18zM19,21H20V22H19zM24,21H25V22H24zM25,21H26V22H25zM29,21H30V22H29zM30,21H31V22H30zM2,22H3V23H2zM4,22H5V23H4zM5,22H6V23H5zM6,22H7V23H6zM8,22H9V23H8zM9,22H10V23H9zM13,22H14V23H13zM17,22H18V23H17zM18,22H19V23H18zM21,22H22V23H21zM22,22H23V23H22zM23,22H24V23H23zM24,22H25V23H24zM25,22H26V23H25zM26,22H27V23H26zM28,22H29V23H28zM10,23H11V24H10zM12,23H13V24H12zM18,23H19V24H18zM21,23H22V24H21zM22,23H23V24H22zM26,23H27V24H26zM28,23H29V24H28zM29,23H30V24H29zM30,23H31V24H30zM2,24H3V25H2zM3,24H4V25H3zM4,24H5V25H4zM5,24H6V25H5zM6,24H7V25H6zM7,24H8V25H7zM8,24H9V25H8zM11,24H12V25H11zM20,24H21V25H20zM22,24H23V25H22zM24,24H25V25H24zM26,24H27V25H26zM29,24H30V25H29zM2,25H3V26H2zM8,25H9V26H8zM10,25H11V26H10zM11,25H12V26H11zM13,25H14V26H13zM14,25H15V26H14zM16,25H17V26H16zM18,25H19V26H18zM22,25H23V26H22zM26,25H27V26H26zM27,25H28V26H27zM28,25H29V26H28zM2,26H3V27H2zM4,26H5V27H4zM5,26H6V27H5zM6,26H7V27H6zM8,26H9V27H8zM12,26H13V27H12zM17,26H18V27H17zM18,26H19V27H18zM19,26H20V27H19zM22,26H23V27H22zM23,26H24V27H23zM24,26H25V27H24zM25,26H26V27H25zM26,26H27V27H26zM2,27H3V28H2zM4,27H5V28H4zM5,27H6V28H5zM6,27H7V28H6zM8,27H9V28H8zM10,27H11V28H10zM11,27H12V28H11zM12,27H13V28H12zM13,27H14V28H13zM15,27H16V28H15zM18,27H19V28H18zM19,27H20V28H19zM20,27H21V28H20zM21,27H22V28H21zM24,27H25V28H24zM25,27H26V28H25zM26,27H27V28H26zM27,27H28V28H27zM28,27H29V28H28zM29,27H30V28H29zM2,28H3V29H2zM4,28H5V29H4zM5,28H6V29H5zM6,28H7V29H6zM8,28H9V29H8zM12,28H13V29H12zM14,28H15V29H14zM15,28H16V29H15zM16,28H17V29H16zM18,28H19V29H18zM19,28H20V29H19zM21,28H22V29H21zM26,28H27V29H26zM27,28H28V29H27zM28,28H29V29H28zM30,28H31V29H30zM2,29H3V30H2zM8,29H9V30H8zM11,29H12V30H11zM12,29H13V30H12zM13,29H14V30H13zM15,29H16V30H15zM16,29H17V30H16zM19,29H20V30H19zM20,29H21V30H20zM22,29H23V30H22zM24,29H25V30H24zM29,29H30V30H29zM2,30H3V31H2zM3,30H4V31H3zM4,30H5V31H4zM5,30H6V31H5zM6,30H7V31H6zM7,30H8V31H7zM8,30H9V31H8zM10,30H11V31H10zM12,30H13V31H12zM14,30H15V31H14zM19,30H20V31H19zM22,30H23V31H22zM23,30H24V31H23zM26,30H27V31H26zM27,30H28V31H27zM29,30H30V31H29z" id="qr-path" fill="#000000" fill-opacity="1" fill-rule="nonzero" stroke="none"/></svg><p><b>Scan to open on your phone</b><br>abdullamuizfuad.github.io/MKT205</p></div>
+  </div>
+  <div class="game">
+   <div class="gtop"><strong>Warm-up: what's the relationship?</strong><span id="glab">Pick one</span></div>
+   <div class="fig"><svg id="gsvg" aria-label="Random scatter plot"></svg></div>
+   <div class="opts" id="opts"></div>
+   <div class="gbot"><span id="gr"></span><button id="again" class="ghost">Next plot</button></div>
+  </div>
+ </div>
+</header>
+
+<nav id="chips" class="scroll" aria-label="Questions">
+ <a href="#warm">Warm-up</a><a href="#q1">Q1</a><a href="#q2">Q2</a><a href="#q3">Q3</a><a href="#q4">Q4</a><a href="#q5">Q5</a><a href="#q6">Q6</a><a href="#q7">Q7</a><a href="#submit">Submit</a>
+</nav>
+
+<main>
+<section class="band slide q" id="q1"><div class="qwrap">
+ <div>
+  <p class="qn">Question 1 of 7</p>
+  <h2>What are the objectives in data analysis, and which approach is used for each objective?</h2>
+  <details class="tip"><summary>Show tips</summary><ul>
+   <li>Your textbook names <b>five</b> types of analysis. For each, give its objective (the question it answers) and one technique.</li>
+   <li><b>Descriptive</b>: summarise the sample (which measures?)</li>
+   <li><b>Inferential</b>: go from the sample to the whole population</li>
+   <li><b>Differences</b>: compare groups (which tests?)</li>
+   <li><b>Associative</b>: find out whether variables are related</li>
+   <li><b>Predictive</b>: forecast an outcome</li></ul>
+   <p class="warn"><b>Watch out:</b> don't just list the names. A table with Objective | Approach | Example earns more marks.</p></details>
+  <div class="terms"><span>Mean / SD</span><span>Confidence interval</span><span>Hypothesis test</span><span>t-test</span><span>ANOVA</span><span>Chi-square</span><span>Correlation</span><span>Regression</span></div>
+ </div>
+ <div class="demo">
+  <h3>A resort surveys 300 guests</h3>
+  <p>Each question below needs a different type of analysis. Guess the type, then tap to check.</p>
+  <div class="ladder">
+   <button>What is the average satisfaction score?<em>Descriptive</em></button>
+   <button>Does that average hold for all our guests, not just these 300?<em>Inferential</em></button>
+   <button>Are honeymooners more satisfied than families?<em>Differences</em></button>
+   <button>Do guests who spend more also rate us higher?<em>Associative</em></button>
+   <button>How many bookings will we get if we spend MVR 50k on ads?<em>Predictive</em></button>
+  </div>
+ </div>
+</div></section>
+
+<section class="band slide q" id="q2"><div class="qwrap">
+ <div>
+  <p class="qn">Question 2 of 7</p>
+  <h2>Explain and elaborate the correlation coefficient.</h2>
+  <details class="tip"><summary>Show tips</summary><ul>
+   <li>Define it: one number that sums up the relationship between two variables.</li>
+   <li>Give its range, −1.00 to +1.00. What does the <b>sign</b> tell you, and what does the <b>size</b> tell you?</li>
+   <li>What does r = 0 mean? (Careful: it means no <i>linear</i> relationship.)</li>
+   <li>Say that r must be statistically significant before you interpret it.</li>
+   <li>Explain why correlation does not prove causation, with an example.</li></ul>
+   <p class="ex"><b>Example:</b> iced drink sales and sunburn cases both rise in hot weather, but one does not cause the other.</p>
+   <p class="warn"><b>Watch out:</b> r = −0.80 is <i>stronger</i> than r = +0.30. The sign only shows direction.</p></details>
+  <div class="terms"><span>Direction</span><span>Strength</span><span>−1 to +1</span><span>Significance</span><span>Causation</span></div>
+ </div>
+ <div class="demo">
+  <h3>Reading the scale</h3>
+  <p>Where would these marketing results sit?</p>
+  <div class="scale">
+   <span class="mk" style="left:7.5%">−0.85</span><span class="mk" style="left:50%">0.00</span><span class="mk" style="left:86%">+0.72</span>
+  </div>
+  <div class="ends"><span>−1 perfect negative</span><span>no linear link</span><span>+1 perfect positive</span></div>
+  <p style="margin-top:14px">−0.85: price vs units sold · 0.00: shoe size vs brand loyalty · +0.72: ad spend vs bookings (examples)</p>
+ </div>
+</div></section>
+
+<section class="band slide q" id="q3"><div class="qwrap">
+ <div>
+  <p class="qn">Question 3 of 7</p>
+  <h2>Explain and elaborate covariation.</h2>
+  <details class="tip"><summary>Show tips</summary><ul>
+   <li>Define it: how much change in one variable goes together, consistently, with change in another.</li>
+   <li>Describe the four patterns in the plots: positive, negative, curvilinear, and no relationship.</li>
+   <li>Link it to the other questions: covariation is <b>shown</b> with a scatter diagram (Q4) and <b>measured</b> with a correlation coefficient (Q2).</li>
+   <li>Give a marketing example for each pattern.</li></ul>
+   <p class="ex"><b>Example:</b> as price goes up, units sold go down. That is negative covariation.</p>
+   <p class="warn"><b>Watch out:</b> covariation is about variables moving together, not about one causing the other.</p></details>
+  <div class="terms"><span>Positive</span><span>Negative</span><span>Curvilinear</span><span>No relationship</span><span>Systematic change</span></div>
+ </div>
+ <div class="demo">
+  <h3>Four patterns of covariation</h3>
+  <div class="minis">
+   <div><div class="fig"><svg id="p1"></svg></div><b>Positive</b></div>
+   <div><div class="fig"><svg id="p2"></svg></div><b>Negative</b></div>
+   <div><div class="fig"><svg id="p3"></svg></div><b>Curvilinear</b></div>
+   <div><div class="fig"><svg id="p4"></svg></div><b>No relationship</b></div>
+  </div>
+ </div>
+</div></section>
+
+<section class="band slide q" id="q4"><div class="qwrap">
+ <div>
+  <p class="qn">Question 4 of 7</p>
+  <h2>What is a scatter diagram?</h2>
+  <details class="tip"><summary>Show tips</summary><ul>
+   <li>Define it: a graph that plots pairs of values for two variables.</li>
+   <li>What does each dot stand for? Which variable goes on which axis?</li>
+   <li>What can you read from it? Direction, strength (how tight the dots are), shape, and outliers.</li>
+   <li>Draw a small labelled sketch in your answer. It shows you understand.</li></ul>
+   <p class="ex"><b>Example:</b> each dot is one day at a Malé café, with temperature on X and iced coffee sales on Y.</p>
+   <p class="warn"><b>Watch out:</b> label both axes. A plot without labels tells the reader nothing.</p></details>
+  <div class="terms"><span>X axis (independent)</span><span>Y axis (dependent)</span><span>Outlier</span><span>Pattern</span></div>
+ </div>
+ <div class="demo">
+  <h3>One dot = one day</h3>
+  <div class="fig"><svg id="sc"></svg></div>
+  <p>Example data: temperature vs iced coffee sales over 45 days.</p>
+ </div>
+</div></section>
+
+<section class="band slide q" id="q5"><div class="qwrap">
+ <div>
+  <p class="qn">Question 5 of 7</p>
+  <h2>Explain and elaborate the Pearson product moment correlation coefficient.</h2>
+  <details class="tip"><summary>Show tips</summary><ul>
+   <li>When is it used? When both variables are <b>metric</b> (interval or ratio scale).</li>
+   <li>What does it measure? The strength and direction of a <b>linear</b> relationship.</li>
+   <li>Write the formula and explain its parts: covariance divided by the product of the two standard deviations.</li>
+   <li>List its assumptions and limits: linear, sensitive to outliers, can miss curved patterns.</li>
+   <li>Say how it is tested: the null hypothesis is that the population correlation is zero.</li></ul>
+   <div class="formula">r = Σ(xᵢ − x̄)(yᵢ − ȳ) ÷ [ (n − 1) · sₓ · sᵧ ]</div>
+   <p class="warn"><b>Watch out:</b> Pearson's r is not for nominal data like gender or region.</p></details>
+  <div class="terms"><span>Metric data</span><span>Linear</span><span>Covariance</span><span>Standard deviation</span><span>H₀: ρ = 0</span></div>
+ </div>
+ <div class="demo">
+  <h3>Move the slider and watch r</h3>
+  <div class="fig"><svg id="sl"></svg></div>
+  <div class="slider"><input type="range" id="rr" min="-100" max="100" step="5" value="70" aria-label="Target correlation"><span class="read" id="rout"></span></div>
+ </div>
+</div></section>
+
+<section class="band slide q" id="q6"><div class="qwrap">
+ <div>
+  <p class="qn">Question 6 of 7</p>
+  <h2>Set out the rules of thumb for the strength of a correlation coefficient.</h2>
+  <details class="tip"><summary>Show tips</summary><ul>
+   <li>Strength depends on the <b>size</b> of r, not its sign.</li>
+   <li>The common marketing research textbook rule uses five bands, each about 0.20 wide.</li>
+   <li>Set them out as a table: range of r → strength label.</li>
+   <li>Add the condition: interpret strength only if r is statistically significant.</li>
+   <li>Other authors use different cut-offs, such as Cohen (1988): .10 small, .30 medium, .50 large. Cite whichever source you use.</li></ul>
+   <p class="warn"><b>Watch out:</b> ±0.85 and −0.85 sit in the same band.</p></details>
+  <div class="terms"><span>Absolute value</span><span>Strong</span><span>Moderate</span><span>Weak</span><span>Significance first</span></div>
+ </div>
+ <div class="demo">
+  <h3>The strength meter</h3>
+  <p>Try writing your table first, then reveal it.</p>
+  <div class="meter hide" id="meter">
+   <div><span>±0.81 – 1.00</span><i style="width:100%">Strong</i></div>
+   <div><span>±0.61 – 0.80</span><i style="width:80%">Moderate</i></div>
+   <div><span>±0.41 – 0.60</span><i style="width:60%">Weak</i></div>
+   <div><span>±0.21 – 0.40</span><i style="width:40%">Very weak</i></div>
+   <div><span>±0.00 – 0.20</span><i style="width:20%">None</i></div>
+  </div>
+  <div class="row"><button id="mbtn">Reveal the table</button></div>
+  <p>Bands as in Burns &amp; Bush, Marketing Research.</p>
+ </div>
+</div></section>
+
+<section class="band slide q" id="q7"><div class="qwrap">
+ <div>
+  <p class="qn">Question 7 of 7</p>
+  <h2>Explain bivariate linear regression.</h2>
+  <details class="tip"><summary>Show tips</summary><ul>
+   <li>"Bivariate" means two variables: one independent (x) is used to predict one dependent (y).</li>
+   <li>Write the equation <b>y = a + bx</b> and explain what <b>a</b> (intercept) and <b>b</b> (slope) mean.</li>
+   <li>How is the line fitted? The least squares method, which minimises the squared residuals.</li>
+   <li>How good is the line? Explain R², and why b must be significant.</li>
+   <li>How is regression different from correlation? Prediction vs association.</li></ul>
+   <p class="ex"><b>Example:</b> use the equation on the right to predict bookings for a given ad budget.</p>
+   <p class="warn"><b>Watch out:</b> don't predict far outside the range of your data.</p></details>
+  <div class="terms"><span>Intercept (a)</span><span>Slope (b)</span><span>Least squares</span><span>Residual</span><span>R²</span></div>
+ </div>
+ <div class="demo">
+  <h3>Ad spend → bookings</h3>
+  <div class="fig"><svg id="rg"></svg></div>
+  <p class="read" id="eq" style="font-size:18px;color:var(--ink)"></p>
+  <div class="pred"><label for="px">If ad spend (MVR '000) =</label><input id="px" type="number" value="30" inputmode="decimal"><span>→ <b id="py"></b> bookings</span></div>
+  <div class="row"><button id="newrg" class="ghost">New sample</button></div>
+  <p>Sample data, made up for practice.</p>
+ </div>
+</div></section>
+
+<section class="band slide submit" id="submit"><div class="qwrap">
+ <div>
+  <h2>Submit your answers</h2>
+  <ol>
+   <li>Write your <b>name and student ID</b> at the top of every page.</li>
+   <li>Number your answers 1–7 to match the questions.</li>
+   <li>Take one photo per page, flat and in good light, with every word readable.</li>
+   <li>Upload all the photos to the <b>Tutorial 13</b> submission on Moodle.</li>
+  </ol>
+ </div>
+ <div class="deadline"><span>Deadline</span><b>End of class today</b><span>Problem uploading? Show your paper to the lecturer before you leave.</span></div>
+</div></section>
+</main>
+<footer>MKT205 Marketing Research · Tutorial 13</footer>
+
+<div id="pnav">
+ <button id="prev" aria-label="Previous">‹</button><span id="pos"></span><button id="next" aria-label="Next">›</button>
+ <span class="sp"></span>
+ <button id="mm" class="ghost" aria-label="One minute less">−</button><button id="tm" title="Start or pause timer">6:00</button><button id="mp" class="ghost" aria-label="One minute more">+</button>
+ <button id="exit" class="ghost">Exit</button>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+function rng(seed){return function(){seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function gauss(R){let u=0;while(!u)u=R();const v=R();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function base(n,seed){const R=rng(seed);return Array.from({length:n},()=>[gauss(R),gauss(R)])}
+function corr(b,r){const k=Math.sqrt(1-r*r);return b.map(([x,z])=>[x,r*x+k*z])}
+function stats(p){const n=p.length;let mx=0,my=0;p.forEach(([x,y])=>{mx+=x;my+=y});mx/=n;my/=n;let sxy=0,sxx=0,syy=0;p.forEach(([x,y])=>{sxy+=(x-mx)*(y-my);sxx+=(x-mx)**2;syy+=(y-my)**2});const b=sxy/sxx;return{r:sxy/Math.sqrt(sxx*syy),b,a:my-b*mx}}
+function strength(r){const a=Math.abs(+r.toFixed(2));return a>=.81?'Strong':a>=.61?'Moderate':a>=.41?'Weak':a>=.21?'Very weak':'None'}
+const fmt=r=>(r>0?'+':r<0?'−':'')+Math.abs(r).toFixed(2);
+
+const figs=new Map();
+const ro=new ResizeObserver(es=>es.forEach(e=>{const f=figs.get(e.target);if(f)f()}));
+function plot(svg,pts,o={}){figs.set(svg,()=>draw(svg,pts,o));ro.observe(svg);draw(svg,pts,o)}
+function draw(svg,pts,o){
+ const W=svg.clientWidth,H=svg.clientHeight;if(!W||!H)return;
+ const P=o.xl?30:12,xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);
+ let x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+ const dx=(x1-x0)*.06||1,dy=(y1-y0)*.06||1;x0-=dx;x1+=dx;y0-=dy;y1+=dy;
+ const sx=v=>P+(v-x0)/(x1-x0)*(W-P-8),sy=v=>H-P-(v-y0)/(y1-y0)*(H-P-8);
+ let h=`<line x1="${P}" y1="${H-P}" x2="${W-4}" y2="${H-P}" class="ax"/><line x1="${P}" y1="${H-P}" x2="${P}" y2="4" class="ax"/>`;
+ if(o.line){const{a,b}=o.line;h+=`<line x1="${sx(x0)}" y1="${sy(a+b*x0)}" x2="${sx(x1)}" y2="${sy(a+b*x1)}" class="fit"/>`}
+ h+=pts.map(([x,y])=>`<circle cx="${sx(x).toFixed(1)}" cy="${sy(y).toFixed(1)}" r="${o.r||4}" class="dot"/>`).join('');
+ if(o.xl)h+=`<text x="${W-6}" y="${H-10}" text-anchor="end" class="lab">${o.xl}</text><text transform="translate(${P-10},6) rotate(-90)" text-anchor="end" class="lab">${o.yl}</text>`;
+ svg.innerHTML=h}
+
+/* warm-up */
+const cats=[['Strong positive',.92],['Weak positive',.45],['No relationship',0],['Weak negative',-.45],['Strong negative',-.92]];
+$('#opts').innerHTML=cats.map(([n],i)=>`<button data-i="${i}">${n}</button>`).join('');
+let gs=3,ans=0,done=false,last=-1;
+function warm(){gs++;const R=rng(gs*977);do{ans=Math.floor(R()*cats.length)}while(ans===last);last=ans;done=false;
+ const p=corr(base(40,gs),cats[ans][1]);$('#gr').dataset.v=stats(p).r;$('#gr').textContent='';
+ $('#glab').textContent='Pick one';$$('#opts button').forEach(b=>b.className='');plot($('#gsvg'),p,{r:5})}
+$$('#opts button').forEach(b=>b.onclick=()=>{if(done)return;done=true;const i=+b.dataset.i;
+ b.className=i===ans?'ok':'no';$$('#opts button')[ans].className='ok';
+ $('#glab').textContent=i===ans?'Correct!':'Not quite';
+ $('#gr').textContent=`${cats[ans][0]}: r = ${fmt(+$('#gr').dataset.v)}`});
+$('#again').onclick=warm;
+warm();
+
+/* Q1 ladder */
+$$('.ladder button').forEach(b=>b.onclick=()=>b.classList.toggle('open'));
+
+/* Q3 patterns */
+plot($('#p1'),corr(base(40,11),.85),{r:3});
+plot($('#p2'),corr(base(40,12),-.85),{r:3});
+plot($('#p3'),base(40,13).map(([x,z])=>[x,x*x+.35*z]),{r:3});
+plot($('#p4'),corr(base(40,14),0),{r:3});
+
+/* Q4 scatter */
+plot($('#sc'),corr(base(45,21),.78).map(([x,y])=>[29+1.6*x,120+30*y]),{xl:'Temperature',yl:'Iced coffee sales'});
+
+/* Q5 slider */
+const b5=base(60,5);
+function slide(){const t=$('#rr').value/100;const p=corr(b5,Math.max(-.999,Math.min(.999,t)));const r=stats(p).r;
+ plot($('#sl'),p,{xl:'Variable X',yl:'Variable Y'});$('#rout').textContent=`r = ${fmt(r)} · ${strength(r)}`}
+$('#rr').oninput=slide;slide();
+
+/* Q6 meter */
+$('#mbtn').onclick=()=>{const m=$('#meter');m.classList.toggle('hide');$('#mbtn').textContent=m.classList.contains('hide')?'Reveal the table':'Hide the table'};
+
+/* Q7 regression */
+let rs=31,cur7;
+function reg(){rs++;const p=corr(base(30,rs),.8).map(([x,y])=>[Math.max(2,25+7*x),Math.max(5,80+18*y)]);const s=stats(p);cur7=s;
+ plot($('#rg'),p,{xl:"Ad spend (MVR '000)",yl:'Bookings',line:s});
+ $('#eq').textContent=`Bookings = ${s.a.toFixed(1)} + ${s.b.toFixed(2)} × ad spend   ·   R² = ${(s.r**2).toFixed(2)}`;pred()}
+function pred(){const x=parseFloat($('#px').value);$('#py').textContent=isNaN(x)?'–':Math.round(cur7.a+cur7.b*x)}
+$('#px').oninput=pred;$('#newrg').onclick=reg;reg();
+
+/* presenter mode */
+const slides=$$('.slide');let at=0,mins=6,left=360,tid=null;
+function tshow(){const m=Math.floor(left/60),s=left%60;$('#tm').textContent=`${m}:${String(s).padStart(2,'0')}`;$('#tm').classList.toggle('done',left===0)}
+function treset(){clearInterval(tid);tid=null;left=mins*60;tshow()}
+$('#tm').onclick=()=>{if(tid){clearInterval(tid);tid=null;return}if(!left)left=mins*60;tid=setInterval(()=>{left=Math.max(0,left-1);tshow();if(!left){clearInterval(tid);tid=null}},1000)};
+$('#mm').onclick=()=>{mins=Math.max(1,mins-1);treset()};$('#mp').onclick=()=>{mins=Math.min(30,mins+1);treset()};
+function show(i){at=Math.max(0,Math.min(slides.length-1,i));slides.forEach((s,k)=>s.classList.toggle('on',k===at));$('#pos').textContent=`${at+1} / ${slides.length}`;treset();window.scrollTo(0,0)}
+$('#present').onclick=()=>{document.body.classList.add('present');show(0);try{document.documentElement.requestFullscreen().catch(()=>{})}catch(e){}};
+function exitP(){document.body.classList.remove('present');clearInterval(tid);tid=null;try{if(document.fullscreenElement)document.exitFullscreen().catch(()=>{})}catch(e){}}
+$('#exit').onclick=exitP;$('#prev').onclick=()=>show(at-1);$('#next').onclick=()=>show(at+1);
+document.addEventListener('keydown',e=>{if(!document.body.classList.contains('present')||e.target.matches('input,textarea'))return;
+ if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(at+1)}
+ else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();show(at-1)}
+ else if(e.key==='Escape')exitP()});
+}
+</script>
+</body>
+</html>
